@@ -16,7 +16,7 @@ func NewAdapter(api ports.APIPort) *Adapter {
 	return &Adapter{api: api}
 }
 
-func (grpc Adapter) Run() {
+func (grpca Adapter) Run() {
 	var err error 
 
 	listen, err := net.Listen("tcp", ":9000")
@@ -26,7 +26,7 @@ func (grpc Adapter) Run() {
 	}
 
 	arithmeticServiceServer := grpca 
-	grpcServer := grpc.NewAdapter()
+	grpcServer := grpc.NewServer()
 	pb.RegisterArithmeticServiceServer(grpcServer, arithmeticServiceServer)
 
 	if err := grpcServer.Serve(listen); err != nil {

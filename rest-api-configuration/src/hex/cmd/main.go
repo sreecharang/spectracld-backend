@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"restapi/v2/internal/adapters/core/arithmetic"
-	// "restapi/v2/internal/ports"
+	"restapi/v2/internal/ports"
+	"rest"
 )
 
 func main() {
