@@ -1,26 +1,41 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"os"
+	"restapi/v2/internal/adapters/app/api"
 	"restapi/v2/internal/adapters/core/arithmetic"
+	"restapi/v2/internal/adapters/framework/right/db"
 	"restapi/v2/internal/ports"
-	"rest"
+
+	gRPC "restapi/v2/internal/adapters/framework/left/grpc"
 )
 
 func main() {
 
-	// ports 
-	// var core ports.ArithmeticPort
+	var err error
 
-	// core = arithmetic.NewAdapter()
+	// ports
 
-	arithAdapter := arithmetic.NewAdapter()
-	result, err := arithAdapter.Addition(1, 3)
+	var dbaseAdapter ports.DbPort
+	var core ports.ArithmeticPort
+	var appAdapter ports.APIPort
+	var gRPCAdapter ports.GRPCPort
+
+	dbaseDriver := os.Getenv("DB_DRIVER")
+	dsourceName := os.Getenv("DS_NAME")
+
+	dbaseAdapter, err = db.NewAdapter(dbaseDriver, dsourceName)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("failed to initialize dbase connection: %v", err)
 	}
+	defer dbaseAdapter.CloseDBConnection()
 
-	fmt.Println(result)
+	core = arithmetic.NewAdapter()
+
+	appAdapter = api.NewAdapter(dbaseAdapter, core)
+
+	gRPCAdapter = gRPC.NewAdapter(appAdapter)
+	gRPCAdapter.Run()
 }
-
